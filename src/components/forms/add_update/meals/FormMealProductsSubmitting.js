@@ -21,7 +21,6 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenS
   );
 
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
 
   // make products null or float up to their values
   const parseWeights = (product) => {
@@ -99,9 +98,6 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenS
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Add Product Weights
-        </Typography>
         {selectedProducts.map((product, index) => (
           <Box key={product.id} sx={{ mb: 2 }}>
             <Typography variant="subtitle1">
@@ -112,8 +108,6 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenS
               type="number"
               value={productWeights[index].weight_before}
               onChange={(e) => handleChange(index, 'weight_before', e.target.value)}
-              error={!!errors[`${index}-weight_before`]}
-              helperText={errors[`${index}-weight_before`] || 'Leave blank if not applicable'}
               fullWidth
               sx={{ mb: 2 }}
             />
@@ -122,8 +116,6 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenS
               type="number"
               value={productWeights[index].weight_after}
               onChange={(e) => handleChange(index, 'weight_after', e.target.value)}
-              error={!!errors[`${index}-weight_after`]}
-              helperText={errors[`${index}-weight_after`] || 'Leave blank if not applicable'}
               fullWidth
             />
           </Box>
