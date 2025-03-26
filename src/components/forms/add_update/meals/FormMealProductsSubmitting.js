@@ -5,14 +5,12 @@ import {
   Typography, 
   Card, 
   CardContent,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import axios from 'axios';
-import { SERVER_URL } from '../../../context/globals';
-import InputField from '../../input_fields/InputField';
+import { SERVER_URL } from '../../../../context/globals';
+import InputField from '../../../input_fields/InputField';
 
-const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
+const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenSnackbar, setErrorMessage }) => {
   const [productWeights, setProductWeights] = useState(
     selectedProducts.map(product => ({
       id: product.id,
@@ -24,57 +22,44 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
+  // make products null or float up to their values
+  const parseWeights = (product) => {
+    const weightBefore = product.weight_before!='' ? parseFloat(product.weight_before) : null;
+    const weightAfter = product.weight_after!='' ? parseFloat(product.weight_after) : null;
+    return {weightBefore, weightAfter}
+  }
+
+  // chnaging weights of the products in the list
   const handleChange = (index, field, value) => {
     setProductWeights(prevWeights => {
       const updatedWeights = [...prevWeights];
       updatedWeights[index][field] = value;
       return updatedWeights;
     });
-
-    // Clear any specific field errors when user starts typing
-    if (errors[`${index}-${field}`]) {
-      setErrors(prev => {
-        const newErrors = {...prev};
-        delete newErrors[`${index}-${field}`];
-        return newErrors;
-      });
-    }
   };
 
   const validateWeights = () => {
-    const newErrors = {};
+    let error = null;
+
+    // check for each product that the weights are valid
     productWeights.forEach((product, index) => {
-      const weightBefore = product.weight_before ? parseFloat(product.weight_before) : null;
-      const weightAfter = product.weight_after ? parseFloat(product.weight_after) : null;
-
-      // Validate weight before if entered
-      if (product.weight_before && isNaN(weightBefore)) {
-        newErrors[`${index}-weight_before`] = 'Invalid weight before';
-      }
-
-      // Validate weight after if entered
-      if (product.weight_after && isNaN(weightAfter)) {
-        newErrors[`${index}-weight_after`] = 'Invalid weight after';
-      }
+  
+      const {weightBefore, weightAfter} = parseWeights(product);
 
       // Compare weights only if both are entered
       if (weightBefore !== null && weightAfter !== null && weightAfter > weightBefore) {
-        newErrors[`${index}-weight_after`] = 'After weight cannot be greater than before weight';
+        setErrorMessage("weight after cannot be less than weight before");
+        setOpenSnackbar(true);   
+        return false;   
       }
     });
-    return newErrors;
+    return  true;
   };
 
   const handleSubmit = async () => {
-    const validationErrors = validateWeights();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+
+    if (!validateWeights()){return;}
 
     setLoading(true);
     try {
@@ -88,13 +73,13 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
       // Submit product weights for the meal (only for products with weights)
       await Promise.all(
         productWeights
-          .filter(product => product.weight_before && product.weight_after)
           .map(async (product) => {
+            const {weightBefore, weightAfter} = parseWeights(product);
             const item = {
               meal_id: meal.id, 
               product_id: product.id, 
-              weight_before: parseFloat(product.weight_before),
-              weight_after: parseFloat(product.weight_after)
+              weight_before: weightBefore,
+              weight_after: weightAfter
             };
             await axios.post(`${SERVER_URL}/meals-products`, item);
           })
@@ -149,7 +134,7 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
             onClick={onCancel}
             disabled={loading}
           >
-            Cancel
+            Back
           </Button>
           <Button 
             variant="contained" 
@@ -160,29 +145,8 @@ const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
           </Button>
         </Box>
       </CardContent>
-
-      <Snackbar 
-        open={openSnackbar} 
-        autoHideDuration={6000} 
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={() => {
-            setOpenSnackbar(false);
-            setErrorMessage("");
-          }} 
-          severity="error"
-          sx={{ width: '100%' }}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </Card>
   );
 };
 
 export default FormProductsSubmitting;
-
-// add to the list onlt what i addded weights. fix it to add all (to the server!)
-// see the item in the frontend

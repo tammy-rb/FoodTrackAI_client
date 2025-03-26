@@ -12,31 +12,34 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const limit = 9;
 
-  // Fetch items with pagination
   const fetchItems = useCallback(async () => {
     if (loading || page > totalPages) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${SERVER_URL}/${object.url_entry}?page=${page}&limit=${limit}`);
-      setItems((prev) => [...prev, ...response.data.items]); 
-      setPage((prev) => prev + 1);
+      const response = await axios.get(
+        `${SERVER_URL}/${object.url_entry}?page=${page}&limit=${limit}`
+      );
+      const newItems = response.data.items;
+      
+      setItems((prev) => {
+        const itemMap = new Map(prev.map((item) => [item.id, item]));
+        newItems.forEach((item) => itemMap.set(item.id, item));
+        return Array.from(itemMap.values());
+      });
+
       setTotalPages(response.data.totalPages);
+      setPage((prevPage) => prevPage + 1);
     } catch (error) {
       console.error(`Error fetching ${object.type}:`, error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [loading, page, totalPages]);
 
-  // Infinite scrolling setup
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchItems();
-        }
-      },
-      { rootMargin: "100px" }
-    );
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) fetchItems();
+    }, { rootMargin: "100px" });
 
     const target = document.getElementById("load-more-trigger");
     if (target) observer.observe(target);
@@ -44,7 +47,6 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
     return () => observer.disconnect();
   }, [fetchItems]);
 
-  // Remove an item
   const handleRemove = async (id) => {
     try {
       await axios.delete(`${SERVER_URL}/${object.url_entry}/${id}`);
@@ -54,7 +56,6 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
     }
   };
 
-  // Open modal to add or update an item
   const handleUpdateItem = (item) => {
     setSelectedItem(item);
     setOpenModal(true);
@@ -62,11 +63,14 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
 
   const handleItemAdded = (item) => {
     setOpenModal(false);
-    if (selectedItem) {
-      setItems((prev) =>
-        prev.map((it) => (parseInt(it.id) === parseInt(item.id) ? item : it))
-      );
-    } 
+    setItems((prev) => {
+      const itemIndex = prev.findIndex((it) => parseInt(it.id) === parseInt(item.id));
+      if (itemIndex !== -1) {
+        prev[itemIndex] = item;
+        return [...prev];
+      }
+      return [item, ...prev];
+    });
   };
 
   return (
@@ -86,7 +90,7 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
       </Button>
       <Grid container spacing={3}>
         {items.map((i) => (
-          <Grid item xs={12} sm={6} md={4} key={i.id}>
+          <Grid item xs={12} sm={6} md={4} key={`${i.id}-${Math.random()}`}>
             <CardType item={i} onRemove={handleRemove} onUpdate={handleUpdateItem} />
           </Grid>
         ))}
@@ -106,22 +110,14 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
             transform: 'translate(-50%, -50%)',
             width: { xs: '90%', sm: '80%', md: '60%', lg: '50%' },
             bgcolor: 'background.paper',
-            boxShadow: 3,  // Soft shadow for better depth
-            borderRadius: 3,  // Rounded corners for the modal
+            boxShadow: 3,
+            borderRadius: 3,
             maxHeight: '90vh',
             overflowY: 'auto',
-            p: 4,  // Increased padding for content
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
+            p: 4,
           }}
         >
-          <AddUpdateForm
-            item={selectedItem}
-            onClose={() => setOpenModal(false)}
-            onItemAdded={handleItemAdded}
-          />
+          <AddUpdateForm item={selectedItem} onClose={() => setOpenModal(false)} onItemAdded={handleItemAdded} />
         </Box>
       </Modal>
     </Box>

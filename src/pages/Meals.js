@@ -1,6 +1,6 @@
 import React from "react";
 import MealCard from "../components/cards/MealCard";
-import AddMealForm from "../components/forms/add_update/AddMealForm"; // Import the Add/Update form for products
+import AddMealForm from "../components/forms/add_update/meals/AddMealForm"; // Import the Add/Update form for products
 import { SERVER_URL } from "../context/globals"; // Your server URL context
 import Items from "../components/ItemsList"
 
