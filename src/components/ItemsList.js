@@ -66,10 +66,7 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
       setItems((prev) =>
         prev.map((it) => (parseInt(it.id) === parseInt(item.id) ? item : it))
       );
-    } else {
-      setItems((prev) => [item, ...prev]);
-    }
-    setSelectedItem(null);
+    } 
   };
 
   return (
@@ -101,11 +98,31 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
         </Box>
       )}
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <AddUpdateForm
-          item={selectedItem}
-          onClose={() => setOpenModal(false)}
-          onItemAdded={handleItemAdded}
-        />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: '60%', lg: '50%' },
+            bgcolor: 'background.paper',
+            boxShadow: 3,  // Soft shadow for better depth
+            borderRadius: 3,  // Rounded corners for the modal
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            p: 4,  // Increased padding for content
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <AddUpdateForm
+            item={selectedItem}
+            onClose={() => setOpenModal(false)}
+            onItemAdded={handleItemAdded}
+          />
+        </Box>
       </Modal>
     </Box>
   );

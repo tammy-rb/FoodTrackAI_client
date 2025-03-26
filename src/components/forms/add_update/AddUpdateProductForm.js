@@ -126,9 +126,8 @@ const AddUpdateProductForm = ({ onClose, onItemAdded, item }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <Box sx={{ p: 4, maxWidth: 500, bgcolor: "white", borderRadius: 2, textAlign: "center", boxShadow: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>{item ? "Update Item" : "Add New Item"}</Typography>
+      <Box sx={{ p: 4, maxWidth: 500, textAlign: "center", boxShadow: 3, overflowY: 'auto',}}>
+        <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>{item ? "Update Item" : "Add New Item"}</Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <InputField label="SKU" name="sku" value={productData.sku} onChange={handleChange} required />
@@ -153,7 +152,6 @@ const AddUpdateProductForm = ({ onClose, onItemAdded, item }) => {
           <Alert onClose={() => setOpenSnackbar(false)} severity="error">{errorMessage}</Alert>
         </Snackbar>
       </Box>
-    </Box>
   );
 };
 

@@ -6,7 +6,7 @@ import InputField from "../../input_fields/InputField";
 import SelectField from "../../input_fields/SelectField";
 import ImageUpload from "../../input_fields/ImageUpload";
 
-const AddMealForm = ({ onClose, onItemAdded }) => {
+const AddMealForm = ({ onClose, onItemAdded, item }) => {
   const [mealData, setMealData] = useState({
     description: "",
     picture_before: null,
@@ -24,6 +24,7 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
   const [productOptions, setProductOptions] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
 
+  // get all products to make  list to chhose from
   useEffect(() => {
     const fetchProductOptions = async () => {
       try {
@@ -37,17 +38,32 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
   }, []);
 
   const validateForm = () => {
-    const { weight_before, weight_after } = mealData;
+    const { weight_before, weight_after, picture_after, picture_before } = mealData;
+    let err = false
     if (!weight_before || !weight_after) {
       setErrorMessage("Please fill in all required fields.");
+      err = true
+    } // if adding meal - must upload an image
+    if (!item && (!picture_after || !picture_before)){
+      setErrorMessage("Please upload images.");
+      err = true
+    }
+    if (weight_after < weight_before){
+      setErrorMessage("weights are not valid");
+      err = true
+    }
+    if (err){
       setOpenSnackbar(true);
       return false;
     }
     return true;
   };
 
+  //handle change in meal data
   const handleChange = (event) => setMealData({ ...mealData, [event.target.name]: event.target.value });
 
+  // update the new image in the data form, change the preview to this image.
+  // there are 2 types of image- before and after
   const handleImageChange = (event, type) => {
     const file = event.target.files[0];
     if (file) {
@@ -61,6 +77,7 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
     }
   };
 
+  // add sekected products to the list of products of the meal according to its sku
   const handleProductChange = (event) => {
     const selectedSkus = event.target.value;
     const selected = productOptions.filter(product => selectedSkus.includes(product.sku));
@@ -89,6 +106,8 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
 
     try {
       const response = await axios.post(`${SERVER_URL}/meals`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      // here add the loop code to post objects like: {   meal_id: 1, product_id: 1, weight_before: 500, weight_after: 450 },  to serverurl/meals-products
+      // do it for all products the user chose. 
       onItemAdded(response.data);
       onClose();
     } catch (error) {
@@ -100,24 +119,17 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
   };
 
   return (
-    <Box sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
+    <Box sx={{ 
+      textAlign: "center",
       overflowY: 'auto',
+      width: '100%',
+      maxWidth: 600, 
+      margin: '0 auto', // Center the box
+      p: { xs: 2, sm: 4 }, 
+      boxSizing: 'border-box', 
+      overflowX: 'hidden',
     }}>
-      <Box sx={{
-        p: 4,
-        width: '100%',
-        maxWidth: 600, // Set a smaller maxWidth for the form on larger screens
-        bgcolor: 'white',
-        borderRadius: 2,
-        textAlign: 'center',
-        boxShadow: 3,
-        overflow: 'hidden',
-      }}>
-        <Typography variant="h6" sx={{ mb: 3, textAlign: 'center' }}>Add New Meal</Typography>
+        <Typography variant="h6" sx={{ mb: 3, mt:2, textAlign: 'center' }}>Add New Meal</Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2} sx={{ justifyContent: 'center' }}> {/* Reduced spacing */}
             {/* Description Field */}
@@ -135,14 +147,12 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
 
 
             {/* Weight Fields (Before and After) */}
-            <Grid container item xs={12} >
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={12}>
                 <InputField  label="Weight Before (g)" name="weight_before" type="number" value={mealData.weight_before} onChange={handleChange} required />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={12}>
                 <InputField label="Weight After (g)" name="weight_after" type="number" value={mealData.weight_after} onChange={handleChange} required/>
               </Grid>
-            </Grid>
 
             {/* Product Select Field */}
             <Grid item xs={12}>
@@ -151,7 +161,14 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
                 value={mealData.products}
                 onChange={handleProductChange}
                 displayEmpty
-                sx={{ width: '100%' }}
+                sx={{
+                  width: '100%',
+                  '& .MuiSelect-select': {
+                    whiteSpace: 'normal',  // Allow wrapping inside the input field
+                    overflow: 'hidden',   // Hide overflowed content
+                    textOverflow: 'ellipsis', // Show ellipsis if text overflows
+                  }
+                }}
               >
                 {productOptions.map((p) => (
                   <MenuItem key={p.sku} value={p.sku}>
@@ -193,7 +210,6 @@ const AddMealForm = ({ onClose, onItemAdded }) => {
           <Alert onClose={() => setOpenSnackbar(false)} severity="error">{errorMessage}</Alert>
         </Snackbar>
       </Box>
-    </Box>
   );
 };
 
