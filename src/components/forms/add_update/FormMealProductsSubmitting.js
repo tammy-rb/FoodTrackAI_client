@@ -1,0 +1,188 @@
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Button, 
+  Typography, 
+  Card, 
+  CardContent,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import axios from 'axios';
+import { SERVER_URL } from '../../../context/globals';
+import InputField from '../../input_fields/InputField';
+
+const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel }) => {
+  const [productWeights, setProductWeights] = useState(
+    selectedProducts.map(product => ({
+      id: product.id,
+      sku: product.sku,
+      weight_before: '',
+      weight_after: ''
+    }))
+  );
+
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleChange = (index, field, value) => {
+    setProductWeights(prevWeights => {
+      const updatedWeights = [...prevWeights];
+      updatedWeights[index][field] = value;
+      return updatedWeights;
+    });
+
+    // Clear any specific field errors when user starts typing
+    if (errors[`${index}-${field}`]) {
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[`${index}-${field}`];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateWeights = () => {
+    const newErrors = {};
+    productWeights.forEach((product, index) => {
+      const weightBefore = product.weight_before ? parseFloat(product.weight_before) : null;
+      const weightAfter = product.weight_after ? parseFloat(product.weight_after) : null;
+
+      // Validate weight before if entered
+      if (product.weight_before && isNaN(weightBefore)) {
+        newErrors[`${index}-weight_before`] = 'Invalid weight before';
+      }
+
+      // Validate weight after if entered
+      if (product.weight_after && isNaN(weightAfter)) {
+        newErrors[`${index}-weight_after`] = 'Invalid weight after';
+      }
+
+      // Compare weights only if both are entered
+      if (weightBefore !== null && weightAfter !== null && weightAfter > weightBefore) {
+        newErrors[`${index}-weight_after`] = 'After weight cannot be greater than before weight';
+      }
+    });
+    return newErrors;
+  };
+
+  const handleSubmit = async () => {
+    const validationErrors = validateWeights();
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Call onSubmit to create the meal first
+      const meal = await onSubmit();
+
+      if (!meal) {
+        throw new Error('Meal creation failed');
+      }
+
+      // Submit product weights for the meal (only for products with weights)
+      await Promise.all(
+        productWeights
+          .filter(product => product.weight_before && product.weight_after)
+          .map(async (product) => {
+            const item = {
+              meal_id: meal.id, 
+              product_id: product.id, 
+              weight_before: parseFloat(product.weight_before),
+              weight_after: parseFloat(product.weight_after)
+            };
+            await axios.post(`${SERVER_URL}/meals-products`, item);
+          })
+      );
+
+      // Reset form or close if successful
+      onCancel();
+    } catch (error) {
+      console.error("Error submitting product weights:", error);
+      setErrorMessage(error.response?.data?.message || "Failed to submit product weights");
+      setOpenSnackbar(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Add Product Weights
+        </Typography>
+        {selectedProducts.map((product, index) => (
+          <Box key={product.id} sx={{ mb: 2 }}>
+            <Typography variant="subtitle1">
+              {product.name} (SKU: {product.sku})
+            </Typography>
+            <InputField
+              label="Weight Before (Optional)"
+              type="number"
+              value={productWeights[index].weight_before}
+              onChange={(e) => handleChange(index, 'weight_before', e.target.value)}
+              error={!!errors[`${index}-weight_before`]}
+              helperText={errors[`${index}-weight_before`] || 'Leave blank if not applicable'}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <InputField
+              label="Weight After (Optional)"
+              type="number"
+              value={productWeights[index].weight_after}
+              onChange={(e) => handleChange(index, 'weight_after', e.target.value)}
+              error={!!errors[`${index}-weight_after`]}
+              helperText={errors[`${index}-weight_after`] || 'Leave blank if not applicable'}
+              fullWidth
+            />
+          </Box>
+        ))}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+          <Button 
+            variant="outlined" 
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Uploading..." : "Add Meal"}
+          </Button>
+        </Box>
+      </CardContent>
+
+      <Snackbar 
+        open={openSnackbar} 
+        autoHideDuration={6000} 
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => {
+            setOpenSnackbar(false);
+            setErrorMessage("");
+          }} 
+          severity="error"
+          sx={{ width: '100%' }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
+    </Card>
+  );
+};
+
+export default FormProductsSubmitting;
+
+// add to the list onlt what i addded weights. fix it to add all (to the server!)
+// see the item in the frontend
