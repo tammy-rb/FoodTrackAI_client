@@ -28,7 +28,7 @@ function InitialAddMealForm({
     const [imagePreviewBefore, setImagePreviewBefore] = useState(null);
     const [imagePreviewAfter, setImagePreviewAfter] = useState(null);
 
-    // Fetch products
+    // Fetch products to options. set the preview of the images to the original if exist (updating)
     useEffect(() => {
         const fetchProductOptions = async () => {
             try {

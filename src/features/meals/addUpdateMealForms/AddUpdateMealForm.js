@@ -7,6 +7,7 @@ import InitialAddMealForm from "./InitialAddMealForm";
 import ErrorSnackbar from "../../../components/Snackbars/ErrorSnackbar";
 
 const AddMealForm = ({ onClose, onItemSubmit, item }) => { 
+  // the meal item. empty if adding mode, if updating mide - fill with original values
   const [mealData, setMealData] = useState({
     description: item?.description || "",
     picture_before: item?.picture_before || null,
@@ -16,6 +17,7 @@ const AddMealForm = ({ onClose, onItemSubmit, item }) => {
     products: item?.products || [],
   });
 
+  // mode to define which form to show 
   const [submissionStage, setSubmissionStage] = useState('initial'); // 'initial', 'product-weights', 'complete'
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false); // show error message
@@ -24,17 +26,18 @@ const AddMealForm = ({ onClose, onItemSubmit, item }) => {
   const [oldProducts, setOldProducts] = useState(null);
   const [updateMode, setUpdateMode] = useState(false);
 
-  // Load item data into state if item is provided as a prop.
+  // if updating - fill the relevant.
   useEffect(() => {
     if (item) {
       setUpdateMode(true);
       setMealData(item);
       setSelectedProducts(item.products || []);
       setOldProducts(item.products);
+      console.log(item.products)
     }
   }, [item]);
 
-  // Function to handle meal creation or update
+  // Function to handle meal creation or update, return the meal created/ updates
   const handleMealCreation = async () => {
     setLoading(true);
     try {
@@ -49,10 +52,10 @@ const AddMealForm = ({ onClose, onItemSubmit, item }) => {
       if (mealData.picture_after) formData.append("meal_pictures", mealData.picture_after);
       
       let response;
-      if (item?.id) {
+      if (item?.id) { // updating
         formData.append("meal_id", item.id);
         response = await axios.put(`${SERVER_URL}/meals/${item.id}`, formData);
-      } else {
+      } else { // creating
         response = await axios.post(`${SERVER_URL}/meals`, formData);
       }
 

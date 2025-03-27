@@ -4,6 +4,7 @@ import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import FormModal from './forms/FormModal'; // Import the FormModal component
+import CustomButton from "./buttons/CustomButton";
 
 const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
   const [items, setItems] = useState([]);
@@ -80,16 +81,13 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
       <Typography variant="h4" sx={{ mb: 3, color: colors.primary, fontWeight: "bold" }}>
         {object.type}
       </Typography>
-      <Button
-        variant="contained"
-        sx={{ mb: 3, backgroundColor: colors.primary, color: "white", "&:hover": { backgroundColor: colors.secondary } }}
+      <CustomButton
         onClick={() => {
           setSelectedItem(null);
           setOpenModal(true);
         }}
-      >
-        Add {object.type}
-      </Button>
+        text={`Add ${object.type}`}  // Pass a custom text prop for the button
+      />
       {/* mapping card to any item. it will be a link card if destination is true */}
       <Grid container spacing={3}>
         {items.map((i) => (
