@@ -13,7 +13,7 @@ function SingleMeal() {
     const [loading, setLoading] = useState(true);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
-    const [updateMeal, setUpdateMeal] = useState(false); // Track the current update state
+    const [updateMeal, setUpdateMeal] = useState(false); 
 
     useEffect(() => {
         const fetchMealData = async () => {
@@ -80,6 +80,11 @@ function SingleMeal() {
                                     width="100%"
                                     style={{ borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
                                 />
+                                {meal.weight_before && (
+                                    <Typography sx={{ marginTop: 2, color: colors.primary }}>
+                                        Before Weight: {meal.weight_before} kg
+                                    </Typography>
+                                )}
                             </Grid>
                             <Grid item xs={6}>
                                 <img
@@ -88,6 +93,11 @@ function SingleMeal() {
                                     width="100%"
                                     style={{ borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
                                 />
+                                {meal.weight_after && (
+                                    <Typography sx={{ marginTop: 2, color: colors.primary }}>
+                                        After Weight: {meal.weight_after} kg
+                                    </Typography>
+                                )}
                             </Grid>
                         </Grid>
                     </Paper>
