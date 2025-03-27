@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, Box } from '@mui/material';
 
-function FormModal({ InsideForm, item, onItemAdded, openModal, setOpenModal }) {
+// we use it for adding or updating form. so if item is not null the mode is updating..
+function FormModal({ InsideForm, item, onItemSubmit, openModal, setOpenModal }) {
   return (
     <Modal open={openModal} onClose={() => setOpenModal(false)}>
       <Box
@@ -20,7 +21,7 @@ function FormModal({ InsideForm, item, onItemAdded, openModal, setOpenModal }) {
         }}
       >
         {/* InsideForm is a dynamic form passed in as a prop, here it's AddUpdateForm */}
-        <InsideForm item={item} onClose={() => setOpenModal(false)} onItemAdded={onItemAdded} />
+        <InsideForm item={item} onClose={() => setOpenModal(false)} onItemSubmit={onItemSubmit} />
       </Box>
     </Modal>
   );

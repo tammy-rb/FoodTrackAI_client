@@ -5,7 +5,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import Meals from './pages/Meals';
-import SingleMeal from './features/meals/singleMeal';
+import SingleMeal from './pages/singleMeal';
 
 
 function App() {

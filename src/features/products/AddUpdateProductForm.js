@@ -8,7 +8,7 @@ import ImageUpload from "../../components/input_fields/ImageUpload";
 
 // Form component for adding and updating products
 // if item is null = meaning adding state. else = updating this item.
-const AddUpdateProductForm = ({ onClose, onItemAdded, item }) => {
+const AddUpdateProductForm = ({ onClose, onItemSubmit, item }) => {
   const [productData, setProductData] = useState({
     sku: "", name: "", category: "", unit: "", dosage: "",
     weight_per_unit: "", calories_per_unit: "", serving_style: "Regular", image_url: null,
@@ -115,7 +115,7 @@ const AddUpdateProductForm = ({ onClose, onItemAdded, item }) => {
         // Add new item
         response = await axios.post(`${SERVER_URL}/products`, formData, { headers: { "Content-Type": "multipart/form-data" } });
       }
-      onItemAdded(response.data); // Update the item list
+      onItemSubmit(response.data); // Update the item list
       onClose();
     } catch (error) {
       console.error("Error submitting item:", error);

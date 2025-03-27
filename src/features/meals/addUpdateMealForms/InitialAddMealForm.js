@@ -20,7 +20,8 @@ function InitialAddMealForm({
     selectedProducts, 
     setSelectedProducts, 
     setOpenSnackbar, 
-    setErrorMessage 
+    setErrorMessage,
+    updateMode
 }) {
     const [productOptions, setProductOptions] = useState([]); // products to choose from for the meal
     const [loading, setLoading] = useState(false);
@@ -40,17 +41,9 @@ function InitialAddMealForm({
             }
         };
         fetchProductOptions();
+        setImagePreviewBefore(mealData?.picture_before ? `${SERVER_URL}/${mealData.picture_before}` : null);
+        setImagePreviewAfter(mealData?.picture_after ? `${SERVER_URL}/${mealData.picture_after}` : null);
     }, []);
-
-    // If there are images in the mealData (update mode), set the preview
-    useEffect(() => {
-        if (mealData.picture_before) {
-            setImagePreviewBefore(`${SERVER_URL}/uploads/${mealData.picture_before}`);
-        }
-        if (mealData.picture_after) {
-            setImagePreviewAfter(`${SERVER_URL}/uploads/${mealData.picture_after}`);
-        }
-    }, [mealData]);
 
     // Initialize mealData.products with selected products if available
     useEffect(() => {
@@ -74,7 +67,7 @@ function InitialAddMealForm({
         }
     
         // while adding item, user must upload images!
-        if (!picture_after || !picture_before) {
+        if (!updateMode && (!picture_after || !picture_before)) {
             errors.push("Please upload both before and after images");
         }
     

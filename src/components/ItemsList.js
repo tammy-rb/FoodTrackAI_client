@@ -3,7 +3,7 @@ import { Box, Button, Grid, Typography, CircularProgress } from "@mui/material";
 import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import FormModal from './FormModal'; // Import the FormModal component
+import FormModal from './forms/FormModal'; // Import the FormModal component
 
 const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
   const [items, setItems] = useState([]);
@@ -115,7 +115,7 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
       <FormModal
         InsideForm={AddUpdateForm}
         item={selectedItem}
-        onItemAdded={handleItemAdded}
+        onItemSubmit={handleItemAdded}
         openModal={openModal}
         setOpenModal={setOpenModal}
       />

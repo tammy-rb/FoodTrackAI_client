@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Typography, Grid, Button, Paper } from '@mui/material';
-import { colors, SERVER_URL } from '../../context/globals';
-import ProductCard from '../products/ProductCard';
-import ErrorSnackbar from '../../components/Snackbars/ErrorSnackbar';
-import FormModal from '../../components/FormModal'
-import AddMealForm from '../meals/addMealForms/AddMealForm'
+import { colors, SERVER_URL } from '../context/globals';
+import ProductCard from '../features/products/ProductCard';
+import ErrorSnackbar from '../components/Snackbars/ErrorSnackbar';
+import FormModal from '../components/forms/FormModal'
+import AddMealForm from '../features/meals/addUpdateMealForms/AddUpdateMealForm'
 
 function SingleMeal() {
   const { mealId } = useParams();
@@ -46,9 +46,30 @@ function SingleMeal() {
     setOpenModal(true); // Open the modal when the user clicks update
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const onUpdate = async (meal) => {
+    setUpdateMeal((prevState) => !prevState);
+    
+    try {
+      // Fetch updated meal data after the update form is submitted
+      const response = await axios.get(`${SERVER_URL}/meals/${mealId}`);
+      setMeal(response.data); // Update the meal data
+        
+      // Fetch updated products for the meal
+      const productsResponse = await axios.get(`${SERVER_URL}/meals-products/meal/${mealId}/products`);
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        products: productsResponse.data, // Update the products data after meal update
+      }));
+      console.log("products got ", productsResponse.data)
+    } catch (error) {
+      console.error(`Error fetching updated meal and products with id ${mealId}:`, error);
+      setErrorMessage('Failed to fetch updated meal data');
+      setOpenSnackbar(true);
+    }
+    setOpenModal(false); 
+
   };
+  
 
   return (
     <Box sx={{ backgroundColor: colors.background, padding: 4 }}>
@@ -129,8 +150,8 @@ function SingleMeal() {
                   <ProductCard
                     item={product}
                     // No need for handleUpdateProduct or handleDeleteProduct unless needed
-                    weight_before={meal.weight_before}
-                    weight_after={meal.weight_after}
+                    weight_before={product.weight_before}
+                    weight_after={product.weight_after}
                   />
                 </Grid>
               ))}
@@ -149,7 +170,7 @@ function SingleMeal() {
               }}
               onClick={handleToggleUpdate}
             >
-              {updateMeal ? 'Cancel Update' : 'Update Meal'}
+              Update Meal
             </Button>
           </Box>
         </>
@@ -166,7 +187,7 @@ function SingleMeal() {
       <FormModal
         InsideForm={AddMealForm}
         item={meal} // Pass the existing meal item
-        onItemAdded={setMeal} // Update the meal after the form submission
+        onItemSubmit={onUpdate} // Update the meal after the form submission
         openModal={openModal}
         setOpenModal={setOpenModal}
       />

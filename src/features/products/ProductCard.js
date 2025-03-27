@@ -25,8 +25,8 @@ const ProductCard = ({ item, onRemove, onUpdate, weight_before, weight_after }) 
         {renderProductAttribute("Serving Style", item.serving_style)}
 
         {/* Conditionally Render Weight Before & After */}
-        {weight_before !== undefined && renderProductAttribute("Weight Before", `${weight_before}g`)}
-        {weight_after !== undefined && renderProductAttribute("Weight After", `${weight_after}g`)}
+        {weight_before && renderProductAttribute("Weight Before", `${weight_before}g`)}
+        {weight_after  && renderProductAttribute("Weight After", `${weight_after}g`)}
 
         {/* Icon Buttons for Update and Remove */}
         <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 1 }}>

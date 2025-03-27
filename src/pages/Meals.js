@@ -1,6 +1,6 @@
 import React from "react";
 import MealCard from "../features/meals/MealCard";
-import AddMealForm from '../features/meals/addMealForms/AddMealForm'
+import AddMealForm from '../features/meals/addUpdateMealForms/AddUpdateMealForm'
 import Items from "../components/ItemsList"
 
 const MealsList = () => {

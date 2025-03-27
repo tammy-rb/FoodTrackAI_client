@@ -4,21 +4,8 @@ import { SERVER_URL } from '../../context/globals';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-const MealCard = ({ item, onRemove, onUpdate }) => {
-  // Handler for remove action
-  const handleRemove = () => {
-    if (onRemove) {
-      onRemove(item.id); // Pass the meal ID to remove it
-    }
-  };
-
-  // Handler for update action
-  const handleUpdate = () => {
-    if (onUpdate) {
-      onUpdate(item); // Pass the entire item for updating
-    }
-  };
-
+const MealCard = ({ item }) => {
+  
   return (
     <Card sx={{ backgroundColor: 'white', boxShadow: 3, borderRadius: 2, overflow: 'hidden' }}>
       <Grid container>
@@ -64,13 +51,6 @@ const MealCard = ({ item, onRemove, onUpdate }) => {
               {item.products && item.products.map((product, index) => (
                 <Chip key={index} label={product} color="primary" variant="outlined" />
               ))}
-            </Box>
-
-            {/* Buttons for Update and Remove */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <IconButton onClick={handleRemove} color="secondary">
-                <DeleteIcon />
-              </IconButton>
             </Box>
           </CardContent>
         </Grid>

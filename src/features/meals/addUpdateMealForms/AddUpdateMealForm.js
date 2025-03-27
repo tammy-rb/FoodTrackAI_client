@@ -6,7 +6,7 @@ import FormMealProductsSubmitting from './FinalAddMealForm';
 import InitialAddMealForm from "./InitialAddMealForm";
 import ErrorSnackbar from "../../../components/Snackbars/ErrorSnackbar";
 
-const AddMealForm = ({ onClose, onItemAdded, item }) => {
+const AddMealForm = ({ onClose, onItemSubmit, item }) => { 
   const [mealData, setMealData] = useState({
     description: item?.description || "",
     picture_before: item?.picture_before || null,
@@ -21,12 +21,16 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false); // show error message
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]); // the products chosen for the meal
+  const [oldProducts, setOldProducts] = useState(null);
+  const [updateMode, setUpdateMode] = useState(false);
 
   // Load item data into state if item is provided as a prop.
   useEffect(() => {
     if (item) {
+      setUpdateMode(true);
       setMealData(item);
       setSelectedProducts(item.products || []);
+      setOldProducts(item.products);
     }
   }, [item]);
 
@@ -57,22 +61,8 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
       console.error("Error submitting meal:", error);
       setErrorMessage("Failed to submit the meal");
       setOpenSnackbar(true);
-      throw error;
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Final submit for product weights form
-  const handleFinalSubmit = async () => {
-    try {
-      const meal = await handleMealCreation();
-      onItemAdded(meal); // if in update mode, update client-side
-      onClose();
-      return meal;
-    } catch (error) {
-      // Error is already handled in handleMealCreation
-      return null;
     }
   };
 
@@ -83,10 +73,13 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
         return (
           <FormMealProductsSubmitting
             selectedProducts={selectedProducts}
-            onSubmit={handleFinalSubmit}
+            onSubmit={handleMealCreation}
             onCancel={() => setSubmissionStage('initial')}
             setOpenSnackbar={setOpenSnackbar}
             setErrorMessage={setErrorMessage}
+            oldProducts={oldProducts}
+            updateMode={updateMode}
+            onItemSubmit={onItemSubmit} 
           />
         );
       default:
@@ -101,6 +94,7 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
             setOpenSnackbar={setOpenSnackbar}
             setErrorMessage={setErrorMessage}
             item={item}
+            updateMode={updateMode}
           />
         );
     }
