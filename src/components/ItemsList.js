@@ -1,27 +1,38 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Grid, Typography, CircularProgress } from "@mui/material";
+import { Box, Grid, Typography, CircularProgress } from "@mui/material";
 import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import FormModal from './forms/FormModal'; // Import the FormModal component
+import { Link, useNavigate } from "react-router-dom";
+import FormModal from './forms/FormModal';
 import CustomButton from "./buttons/CustomButton";
+import GoBackButton from "./buttons/GoBack";
 
-const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
+const Items = ({ 
+  CardType, 
+  AddUpdateForm, 
+  object, 
+  destination = false,
+  showGoBack = true 
+}) => {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [openModal, setOpenModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  
   const limit = 9;
 
   const fetchItems = useCallback(async () => {
     if (loading || page > totalPages) return;
+    
     setLoading(true);
     try {
       const response = await axios.get(
         `${SERVER_URL}/${object.url_entry}?page=${page}&limit=${limit}`
       );
+      
       const newItems = response.data.items;
       
       setItems((prev) => {
@@ -37,7 +48,7 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
     } finally {
       setLoading(false);
     }
-  }, [loading, page, totalPages]);
+  }, [loading, page, totalPages, object.url_entry]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -78,17 +89,37 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
 
   return (
     <Box sx={{ p: 4, backgroundColor: colors.background, minHeight: "100vh" }}>
-      <Typography variant="h4" sx={{ mb: 3, color: colors.primary, fontWeight: "bold" }}>
-        {object.type}
-      </Typography>
+      {/* Header Section */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        mb: 3 
+      }}>
+        {showGoBack && <GoBackButton />}
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: colors.primary, 
+            fontWeight: "bold",
+            flexGrow: 1,
+            textAlign: showGoBack ? 'center' : 'left'
+          }}
+        >
+          {object.type}
+        </Typography>
+      </Box>
+
+      {/* Add Button */}
       <CustomButton
         onClick={() => {
           setSelectedItem(null);
           setOpenModal(true);
         }}
-        text={`Add ${object.type}`}  // Pass a custom text prop for the button
+        text={`Add ${object.type}`}
       />
-      {/* mapping card to any item. it will be a link card if destination is true */}
+
+      {/* Items Grid */}
       <Grid container spacing={3}>
         {items.map((i) => (
           <Grid item xs={12} sm={6} md={4} key={`${i.id}-${Math.random()}`}>
@@ -102,14 +133,18 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
           </Grid>
         ))}
       </Grid>
+
+      {/* Infinite Scroll Trigger */}
       <div id="load-more-trigger" style={{ height: "50px", width: "100%" }}></div>
+      
+      {/* Loading Indicator */}
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <CircularProgress />
         </Box>
       )}
       
-      {/* Use FormModal and pass AddUpdateForm as the InsideForm */}
+      {/* Add/Update Modal */}
       <FormModal
         InsideForm={AddUpdateForm}
         item={selectedItem}
@@ -121,4 +156,4 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
   );
 };
 
-export default Items
+export default Items;

@@ -24,10 +24,26 @@ const Dashboard = () => {
         alignItems: "center",
       }}
     >
-      <Grid container spacing={3} sx={{ width: "60%" }}>
+      <Grid
+        container
+        spacing={3}
+        sx={{
+          width: "80%", // Make it responsive by reducing width
+          maxWidth: "1200px", // Limit max width for larger screens
+        }}
+      >
         {features.map((feature, index) => (
-          <Grid item xs={6} key={index}>
-            <AnimatedSquareButton title={feature.title} onClick={() => navigate("/features" + feature.path)} />
+          <Grid
+            item
+            xs={12}  // On mobile, each item takes full width
+            sm={6}   // On medium screens, 2 items per row
+            md={3}   // On large screens, 4 items per row
+            key={index}
+          >
+            <AnimatedSquareButton
+              title={feature.title}
+              onClick={() => navigate("/features" + feature.path)}
+            />
           </Grid>
         ))}
       </Grid>

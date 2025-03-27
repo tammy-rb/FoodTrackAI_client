@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { colors } from "../../context/globals"
+import { colors } from "../../context/globals";
 
 const AnimatedSquareButton = ({ title, onClick }) => {
   return (
@@ -8,9 +8,9 @@ const AnimatedSquareButton = ({ title, onClick }) => {
       variant="contained"
       fullWidth
       sx={{
-        height: "150px",
-        fontSize: "1.2rem",
-        backgroundColor: colors.background, 
+        height: { xs: "120px", sm: "150px" }, // Adjust height based on screen size
+        fontSize: { xs: "1rem", sm: "1.2rem" }, // Adjust font size on smaller screens
+        backgroundColor: colors.background,
         color: colors.primary,
         fontWeight: "bold",
         borderRadius: "15px",
@@ -31,4 +31,3 @@ const AnimatedSquareButton = ({ title, onClick }) => {
 };
 
 export default AnimatedSquareButton;
-
