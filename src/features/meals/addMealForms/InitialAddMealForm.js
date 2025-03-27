@@ -5,16 +5,11 @@ import ImageUpload from "../../../components/input_fields/ImageUpload";
 import { colors, SERVER_URL } from "../../../context/globals";
 import { 
     TextField, 
-    Box, 
     Button, 
-    Typography, 
     Grid, 
-    Card, 
-    CardMedia, 
-    CardContent, 
     Select, 
     MenuItem 
-  } from "@mui/material";
+} from "@mui/material";
 import ProductsMiniList from "../../products/components/productsMiniList";
 
 function InitialAddMealForm({ 
@@ -46,6 +41,25 @@ function InitialAddMealForm({
         };
         fetchProductOptions();
     }, []);
+
+    // If there are images in the mealData (update mode), set the preview
+    useEffect(() => {
+        if (mealData.picture_before) {
+            setImagePreviewBefore(`${SERVER_URL}/uploads/${mealData.picture_before}`);
+        }
+        if (mealData.picture_after) {
+            setImagePreviewAfter(`${SERVER_URL}/uploads/${mealData.picture_after}`);
+        }
+    }, [mealData]);
+
+    // Initialize mealData.products with selected products if available
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            // Initialize mealData.products with selected SKUs from the selectedProducts
+            const selectedSkus = selectedProducts.map(product => product.sku);
+            setMealData(prev => ({ ...prev, products: selectedSkus }));
+        }
+    }, [selectedProducts]);
 
     const validateForm = () => {
         const { weight_before, weight_after, picture_after, picture_before, products } = mealData;
@@ -168,7 +182,7 @@ function InitialAddMealForm({
                 {/* Selected Products Display */}
                 {selectedProducts.length > 0 && (
                     <Grid item xs={12}>
-                        <ProductsMiniList products = {selectedProducts}/>
+                        <ProductsMiniList products={selectedProducts} />
                     </Grid>
                 )}
 

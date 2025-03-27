@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Button, Grid, Typography, CircularProgress, Modal } from "@mui/material";
+import { Box, Button, Grid, Typography, CircularProgress } from "@mui/material";
 import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import FormModal from './FormModal'; // Import the FormModal component
 
 const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
   const [items, setItems] = useState([]);
@@ -109,27 +110,17 @@ const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
           <CircularProgress />
         </Box>
       )}
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
-            bgcolor: "background.paper",
-            boxShadow: 3,
-            borderRadius: 3,
-            maxHeight: "90vh",
-            overflowY: "auto",
-            p: 4,
-          }}
-        >
-          <AddUpdateForm item={selectedItem} onClose={() => setOpenModal(false)} onItemAdded={handleItemAdded} />
-        </Box>
-      </Modal>
+      
+      {/* Use FormModal and pass AddUpdateForm as the InsideForm */}
+      <FormModal
+        InsideForm={AddUpdateForm}
+        item={selectedItem}
+        onItemAdded={handleItemAdded}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+      />
     </Box>
   );
 };
 
-export default Items;
+export default Items

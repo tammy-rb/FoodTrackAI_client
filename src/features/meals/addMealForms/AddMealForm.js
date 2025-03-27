@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Typography, } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
 import axios from "axios";
 import { colors, SERVER_URL } from "../../../context/globals";
 import FormMealProductsSubmitting from './FinalAddMealForm';
@@ -8,12 +8,12 @@ import ErrorSnackbar from "../../../components/Snackbars/ErrorSnackbar";
 
 const AddMealForm = ({ onClose, onItemAdded, item }) => {
   const [mealData, setMealData] = useState({
-    description: "",
-    picture_before: null,
-    picture_after: null,
-    weight_before: "",
-    weight_after: "",
-    products: [],
+    description: item?.description || "",
+    picture_before: item?.picture_before || null,
+    picture_after: item?.picture_after || null,
+    weight_before: item?.weight_before || "",
+    weight_after: item?.weight_after || "",
+    products: item?.products || [],
   });
 
   const [submissionStage, setSubmissionStage] = useState('initial'); // 'initial', 'product-weights', 'complete'
@@ -22,7 +22,15 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]); // the products chosen for the meal
 
-  // post a meal without its products.
+  // Load item data into state if item is provided as a prop.
+  useEffect(() => {
+    if (item) {
+      setMealData(item);
+      setSelectedProducts(item.products || []);
+    }
+  }, [item]);
+
+  // Function to handle meal creation or update
   const handleMealCreation = async () => {
     setLoading(true);
     try {
@@ -35,10 +43,15 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
 
       if (mealData.picture_before) formData.append("meal_pictures", mealData.picture_before);
       if (mealData.picture_after) formData.append("meal_pictures", mealData.picture_after);
-
-      const response = await axios.post(`${SERVER_URL}/meals`, formData);
       
-      // Return the created meal data
+      let response;
+      if (item?.id) {
+        formData.append("meal_id", item.id);
+        response = await axios.put(`${SERVER_URL}/meals/${item.id}`, formData);
+      } else {
+        response = await axios.post(`${SERVER_URL}/meals`, formData);
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error submitting meal:", error);
@@ -50,29 +63,30 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
     }
   };
 
+  // Final submit for product weights form
   const handleFinalSubmit = async () => {
     try {
-      // This will be called by the product weights form
       const meal = await handleMealCreation();
-      onItemAdded(meal);
+      onItemAdded(meal); // if in update mode, update client-side
       onClose();
       return meal;
     } catch (error) {
-      // Error handling is done in handleMealCreation
+      // Error is already handled in handleMealCreation
       return null;
     }
   };
 
+  // Render the correct form based on the submission stage
   const renderForm = () => {
-    switch(submissionStage) {
+    switch (submissionStage) {
       case 'product-weights':
         return (
-          <FormMealProductsSubmitting 
-            selectedProducts={selectedProducts} 
-            onSubmit={handleFinalSubmit} 
+          <FormMealProductsSubmitting
+            selectedProducts={selectedProducts}
+            onSubmit={handleFinalSubmit}
             onCancel={() => setSubmissionStage('initial')}
             setOpenSnackbar={setOpenSnackbar}
-            setErrorMessage={setErrorMessage}         
+            setErrorMessage={setErrorMessage}
           />
         );
       default:
@@ -103,12 +117,12 @@ const AddMealForm = ({ onClose, onItemAdded, item }) => {
       boxSizing: 'border-box', 
       overflowX: 'hidden' 
     }}>
-      <Typography variant="h6" sx={{ mb: 3, mt:2 }}>
+      <Typography variant="h6" sx={{ mb: 3, mt: 2 }}>
         {submissionStage === 'product-weights' ? 'Add Product Weights' : 'Add New Meal'}
       </Typography>
-      
+
       {renderForm()}
-      
+
       <ErrorSnackbar
         openSnackbar={openSnackbar}
         setOpenSnackbar={setOpenSnackbar}
