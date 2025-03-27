@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Box, Typography, } from "@mui/material";
 import axios from "axios";
-import { colors, SERVER_URL } from "../../../../context/globals";
-import FormMealProductsSubmitting from './FormMealProductsSubmitting';
+import { colors, SERVER_URL } from "../../../context/globals";
+import FormMealProductsSubmitting from './FinalAddMealForm';
 import InitialAddMealForm from "./InitialAddMealForm";
-import ErrorSnackbar from "../../../Snackbars/ErrorSnackbar";
+import ErrorSnackbar from "../../../components/Snackbars/ErrorSnackbar";
 
 const AddMealForm = ({ onClose, onItemAdded, item }) => {
   const [mealData, setMealData] = useState({

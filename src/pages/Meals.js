@@ -1,7 +1,6 @@
 import React from "react";
-import MealCard from "../components/cards/MealCard";
-import AddMealForm from "../components/forms/add_update/meals/AddMealForm"; // Import the Add/Update form for products
-import { SERVER_URL } from "../context/globals"; // Your server URL context
+import MealCard from "../features/meals/MealCard";
+import AddMealForm from '../features/meals/addMealForms/AddMealForm'
 import Items from "../components/ItemsList"
 
 const MealsList = () => {
@@ -16,6 +15,7 @@ const MealsList = () => {
       CardType={MealCard}
       AddUpdateForm={AddMealForm} // Pass in the Add/Update Product Form as AddUpdateForm
       object={object} // Pass the object with URL entry and type as props
+      destination = {true} // card will be links
     />
   );
 };

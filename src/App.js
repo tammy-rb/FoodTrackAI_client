@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import Meals from './pages/Meals';
+import SingleMeal from './features/meals/singleMeal';
 
 
 function App() {
@@ -16,7 +17,10 @@ function App() {
         <Route path="dashboard" element = {<Dashboard/>}/>
         <Route path = "features">
           <Route path = "products" element = {<Products/>}/>
-          <Route path = "meals" element = {<Meals/>}/>
+          <Route path="meals">
+            <Route index element={<Meals />} />
+            <Route path=":mealId" element={<SingleMeal />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

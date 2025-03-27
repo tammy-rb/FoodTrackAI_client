@@ -7,8 +7,8 @@ import {
   CardContent,
 } from '@mui/material';
 import axios from 'axios';
-import { SERVER_URL } from '../../../../context/globals';
-import InputField from '../../../input_fields/InputField';
+import { SERVER_URL } from '../../../context/globals';
+import InputField from '../../../components/input_fields/InputField';
 
 const FormProductsSubmitting = ({ selectedProducts, onSubmit, onCancel, setOpenSnackbar, setErrorMessage }) => {
   const [productWeights, setProductWeights] = useState(

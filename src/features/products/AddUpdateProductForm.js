@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Typography, Snackbar, Alert, Grid } from "@mui/material";
 import axios from "axios";
-import { colors, SERVER_URL } from "../../../context/globals";
-import InputField from "../../input_fields/InputField";
-import SelectField from "../../input_fields/SelectField";
-import ImageUpload from "../../input_fields/ImageUpload";
+import { colors, SERVER_URL } from "../../context/globals";
+import InputField from "../../components/input_fields/InputField";
+import SelectField from "../../components/input_fields/SelectField";
+import ImageUpload from "../../components/input_fields/ImageUpload";
 
 // Form component for adding and updating products
 // if item is null = meaning adding state. else = updating this item.

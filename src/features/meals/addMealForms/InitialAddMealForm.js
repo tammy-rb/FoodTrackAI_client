@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import InputField from "../../../input_fields/InputField";
-import ImageUpload from "../../../input_fields/ImageUpload";
-import { colors, SERVER_URL } from "../../../../context/globals";
+import InputField from "../../../components/input_fields/InputField";
+import ImageUpload from "../../../components/input_fields/ImageUpload";
+import { colors, SERVER_URL } from "../../../context/globals";
 import { 
     TextField, 
     Box, 
@@ -15,6 +15,7 @@ import {
     Select, 
     MenuItem 
   } from "@mui/material";
+import ProductsMiniList from "../../products/components/productsMiniList";
 
 function InitialAddMealForm({ 
     mealData, 
@@ -167,22 +168,7 @@ function InitialAddMealForm({
                 {/* Selected Products Display */}
                 {selectedProducts.length > 0 && (
                     <Grid item xs={12}>
-                        <Box sx={{ overflowY: 'auto', maxHeight: 150, width: '100%', mt: 2 }}>
-                            {selectedProducts.map((product, index) => (
-                                <Card key={index} sx={{ display: 'flex', mb: 1 }}>
-                                    <CardMedia 
-                                        component="img" 
-                                        sx={{ width: 100 }} 
-                                        image={`${SERVER_URL}/${product.image_url}`} 
-                                        alt={product.name} 
-                                    />
-                                    <CardContent>
-                                        <Typography>{product.name} (SKU: {product.sku})</Typography>
-                                        <Typography>Serving Style: {product.serving_style}</Typography>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </Box>
+                        <ProductsMiniList products = {selectedProducts}/>
                     </Grid>
                 )}
 

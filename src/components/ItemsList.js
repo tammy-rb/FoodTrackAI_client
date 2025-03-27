@@ -2,8 +2,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Box, Button, Grid, Typography, CircularProgress, Modal } from "@mui/material";
 import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
-const Items = ({ CardType, AddUpdateForm, object }) => {
+const Items = ({ CardType, AddUpdateForm, object, destination = false }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -88,10 +89,17 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
       >
         Add {object.type}
       </Button>
+      {/* mapping card to any item. it will be a link card if destination is true */}
       <Grid container spacing={3}>
         {items.map((i) => (
           <Grid item xs={12} sm={6} md={4} key={`${i.id}-${Math.random()}`}>
-            <CardType item={i} onRemove={handleRemove} onUpdate={handleUpdateItem} />
+            {destination ? (
+              <Link to={`./${i.id}`} style={{ textDecoration: "none" }}>
+                <CardType item={i} onRemove={handleRemove} onUpdate={handleUpdateItem} />
+              </Link>
+            ) : (
+              <CardType item={i} onRemove={handleRemove} onUpdate={handleUpdateItem} />
+            )}
           </Grid>
         ))}
       </Grid>
@@ -104,16 +112,16 @@ const Items = ({ CardType, AddUpdateForm, object }) => {
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: { xs: '90%', sm: '80%', md: '60%', lg: '50%' },
-            bgcolor: 'background.paper',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
+            bgcolor: "background.paper",
             boxShadow: 3,
             borderRadius: 3,
-            maxHeight: '90vh',
-            overflowY: 'auto',
+            maxHeight: "90vh",
+            overflowY: "auto",
             p: 4,
           }}
         >

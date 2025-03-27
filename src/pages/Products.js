@@ -1,7 +1,6 @@
 import React from "react";
-import ProductCard from "../components/cards/ProductCard" // Import your ProductCard component
-import AddUpdateProductForm from "../components/forms/add_update/AddUpdateProductForm"; // Import the Add/Update form for products
-import { SERVER_URL } from "../context/globals"; // Your server URL context
+import ProductCard from "../features/products/ProductCard" // Import your ProductCard component
+import AddUpdateProductForm from '../features/products/AddUpdateProductForm'
 import Items from "../components/ItemsList"
 
 const ProductsList = () => {
