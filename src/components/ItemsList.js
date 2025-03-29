@@ -12,7 +12,8 @@ const Items = ({
   AddUpdateForm, 
   object, 
   destination = false,
-  navbarContent = null // Custom components for the navbar
+  navbarContent = null,// Custom components for the navbar
+  queryParameter = null
 }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,34 +25,45 @@ const Items = ({
   const limit = 9;
 
   const fetchItems = useCallback(async () => {
-    if (loading || page > totalPages) return;
+    if (loading) return; // Prevent duplicate requests
     
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${SERVER_URL}/${object.url_entry}?page=${page}&limit=${limit}`
-      );
-      
+      const url = queryParameter 
+        ? `${SERVER_URL}/${object.url_entry}?${queryParameter}`  // No pagination if searching
+        : `${SERVER_URL}/${object.url_entry}?page=${page}&limit=${limit}`;
+      console.log(url)
+      const response = await axios.get(url);
       const newItems = response.data.items;
-      
-      setItems((prev) => {
+  
+      setItems(queryParameter ? newItems : (prev) => {
         const itemMap = new Map(prev.map((item) => [item.id, item]));
         newItems.forEach((item) => itemMap.set(item.id, item));
         return Array.from(itemMap.values());
       });
-
-      setTotalPages(response.data.totalPages);
-      setPage((prevPage) => prevPage + 1);
+  
+      if (!queryParameter) {
+        setTotalPages(response.data.totalPages);
+        setPage((prevPage) => prevPage + 1);
+      }
+      else{
+        setTotalPages(1);
+        setPage(1);
+      }
     } catch (error) {
       console.error(`Error fetching ${object.type}:`, error);
     } finally {
       setLoading(false);
     }
-  }, [loading, page, totalPages, object.url_entry]);
+  }, [loading, page, totalPages, object.url_entry, queryParameter]);
+  
+  useEffect(() => {
+    fetchItems(); // Fetch items whenever queryParameter or page changes
+  }, [queryParameter]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) fetchItems();
+      if (entries[0].isIntersecting && page <= totalPages) fetchItems();
     }, { rootMargin: "100px" });
 
     const target = document.getElementById("load-more-trigger");
