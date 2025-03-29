@@ -2,19 +2,18 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Box, Grid, Typography, CircularProgress } from "@mui/material";
 import { colors, SERVER_URL } from "../context/globals";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import FormModal from './forms/FormModal';
 import CustomButton from "./buttons/CustomButton";
-import GoBackButton from "./buttons/GoBack";
+import Navbar from "./Navbars/itemsNavbar"
 
 const Items = ({ 
   CardType, 
   AddUpdateForm, 
   object, 
   destination = false,
-  showGoBack = true 
+  navbarContent = null // Custom components for the navbar
 }) => {
-  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -89,26 +88,13 @@ const Items = ({
 
   return (
     <Box sx={{ p: 4, backgroundColor: colors.background, minHeight: "100vh" }}>
+      {/* Navbar Section */}
+      <Navbar>{navbarContent}</Navbar>
+
       {/* Header Section */}
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        mb: 3 
-      }}>
-        {showGoBack && <GoBackButton />}
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            color: colors.primary, 
-            fontWeight: "bold",
-            flexGrow: 1,
-            textAlign: showGoBack ? 'center' : 'left'
-          }}
-        >
-          {object.type}
-        </Typography>
-      </Box>
+      <Typography variant="h4" sx={{ color: colors.primary, fontWeight: "bold", mt: 2, mb: 3, textAlign: "center" }}>
+        {object.type}
+      </Typography>
 
       {/* Add Button */}
       <CustomButton
@@ -122,7 +108,7 @@ const Items = ({
       {/* Items Grid */}
       <Grid container spacing={3}>
         {items.map((i) => (
-          <Grid item xs={12} sm={6} md={4} key={`${i.id}-${Math.random()}`}>
+          <Grid item xs={12} sm={6} md={4} key={i.id}>
             {destination ? (
               <Link to={`./${i.id}`} style={{ textDecoration: "none" }}>
                 <CardType item={i} onRemove={handleRemove} onUpdate={handleUpdateItem} />
