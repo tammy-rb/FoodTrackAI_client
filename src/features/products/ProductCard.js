@@ -17,7 +17,7 @@ const ProductCard = ({ item, onRemove, onUpdate, weight_before, weight_after }) 
         {/* Render product attributes using utility function */}
         {renderProductAttribute("SKU", item.sku)}
         {renderProductAttribute("Category", item.category)}
-        {renderProductAttribute("Dosage", item.dosage && `${item.dosage} mg`)}
+        {renderProductAttribute("Dosage", item.dosage && `${item.dosage}`)}
         {renderProductAttribute(
           "Unit",
           `${item.unit} ${item.weight_per_unit ? `(${item.weight_per_unit}g)` : ''}${item.calories_per_unit ? `, ${item.calories_per_unit} kcal` : ''}`
