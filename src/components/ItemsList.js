@@ -58,7 +58,11 @@ const Items = ({
   }, [loading, page, totalPages, object.url_entry, queryParameter]);
   
   useEffect(() => {
-    fetchItems(); // Fetch items whenever queryParameter or page changes
+    if (queryParameter != null && queryParameter.length > 0){
+      setPage(1)
+      setTotalPages(Infinity);
+      fetchItems(); // Fetch items whenever queryParameter or page changes
+    }
   }, [queryParameter]);
 
   useEffect(() => {
